@@ -1,0 +1,6 @@
+{
+  "name": "Productivity Desktop Widget",
+  "description": "A clean, minimalist productivity desktop widget featuring an overlay of multiple independent windows including a Main Card control center, Pomodoro Timer, Quick Note, Daily Tracker, and Settings simulated in a high-fidelity light theme layout.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
