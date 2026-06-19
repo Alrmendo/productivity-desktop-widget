@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  CheckSquare, 
-  Flame, 
-  Play, 
+import {
+  Clock,
+  CheckSquare,
+  Flame,
+  Play,
   Pause,
   Timer,
   FileText,
   Calendar,
   Settings,
-  Link,
   BarChart2,
   Minimize2
 } from 'lucide-react';
 import { WidgetSettings } from '../types';
+
+type FeaturePanelId = 'pomodoro' | 'quicknote' | 'todomini' | 'dailytracker' | 'quickstats' | 'settings';
 
 interface MainCardProps {
   completedTasks: number;
@@ -25,8 +26,8 @@ interface MainCardProps {
     mode: 'work' | 'break';
   };
   streak: number;
-  onToggleWindow: (windowId: string) => void;
-  openWindows: { [key: string]: boolean };
+  onOpenPanel: (panel: FeaturePanelId) => void;
+  activePanel: string | null;
   settings: WidgetSettings;
   onTogglePomodoro: () => void;
 }
@@ -36,8 +37,8 @@ export default function MainCard({
   totalTasks,
   pomodoroState,
   streak,
-  onToggleWindow,
-  openWindows,
+  onOpenPanel,
+  activePanel,
   settings,
   onTogglePomodoro,
 }: MainCardProps) {
@@ -76,7 +77,7 @@ export default function MainCard({
     return `${label} ${minStr}:${secStr}`;
   };
 
-  const activeFeaturesCount = Object.values(openWindows).filter(Boolean).length;
+  const activeFeaturesCount = activePanel ? 1 : 0;
 
   return (
     <div className="flex flex-col gap-4 select-none h-full text-[#1A1A1B] font-sans pb-1">
@@ -92,8 +93,8 @@ export default function MainCard({
 
       {/* Core Widget Fast Status Badges */}
       <div className="grid grid-cols-2 gap-2">
-        <div 
-          onClick={() => onToggleWindow('todomini')}
+        <div
+          onClick={() => onOpenPanel('todomini')}
           className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <div className="p-1.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-800">
@@ -105,8 +106,8 @@ export default function MainCard({
           </div>
         </div>
 
-        <div 
-          onClick={() => onToggleWindow('quickstats')}
+        <div
+          onClick={() => onOpenPanel('quickstats')}
           className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <div className="p-1.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-800">
@@ -125,7 +126,7 @@ export default function MainCard({
           <div className={`p-1.5 rounded-lg border ${pomodoroState.isActive ? 'bg-orange-50 border-orange-200 text-orange-600' : 'bg-gray-100 border-gray-200 text-gray-500'}`}>
             <Timer className="w-3.5 h-3.5" />
           </div>
-          <div className="cursor-pointer" onClick={() => onToggleWindow('pomodoro')}>
+          <div className="cursor-pointer" onClick={() => onOpenPanel('pomodoro')}>
             <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Pomodoro</div>
             <div className="text-xs font-bold text-gray-800 tracking-tight">{getPomodoroText()}</div>
           </div>
@@ -145,22 +146,21 @@ export default function MainCard({
         </div>
         <div className="grid grid-cols-3 gap-1.5">
           {[
-            { id: 'pomodoro', name: 'Timer', icon: Timer, color: 'hover:bg-gray-50' },
-            { id: 'quicknote', name: 'Notes', icon: FileText, color: 'hover:bg-gray-50' },
-            { id: 'dailytracker', name: 'Log', icon: Calendar, color: 'hover:bg-gray-50' },
-            { id: 'todomini', name: 'To-do', icon: CheckSquare, color: 'hover:bg-gray-50' },
-            { id: 'appshortcuts', name: 'Links', icon: Link, color: 'hover:bg-gray-50' },
-            { id: 'quickstats', name: 'Thống kê', icon: BarChart2, color: 'hover:bg-gray-50' },
+            { id: 'pomodoro' as const, name: 'Timer', icon: Timer, color: 'hover:bg-gray-50' },
+            { id: 'quicknote' as const, name: 'Notes', icon: FileText, color: 'hover:bg-gray-50' },
+            { id: 'dailytracker' as const, name: 'Log', icon: Calendar, color: 'hover:bg-gray-50' },
+            { id: 'todomini' as const, name: 'To-do', icon: CheckSquare, color: 'hover:bg-gray-50' },
+            { id: 'quickstats' as const, name: 'Thống kê', icon: BarChart2, color: 'hover:bg-gray-50' },
           ].map((item) => {
-            const isOpen = openWindows[item.id];
+            const isOpen = activePanel === item.id;
             const IconComponent = item.icon;
             return (
               <button
                 key={item.id}
-                onClick={() => onToggleWindow(item.id)}
+                onClick={() => onOpenPanel(item.id)}
                 className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg border text-center transition-all cursor-pointer
-                  ${isOpen 
-                    ? 'bg-gray-900 border-gray-900 text-white shadow-xs font-bold' 
+                  ${isOpen
+                    ? 'bg-gray-900 border-gray-900 text-white shadow-xs font-bold'
                     : `bg-white border-gray-200 text-gray-700 hover:border-gray-400 ${item.color}`
                   }`}
               >
@@ -179,10 +179,10 @@ export default function MainCard({
           ACTIVE READY
         </span>
         <button
-          onClick={() => onToggleWindow('settings')}
+          onClick={() => onOpenPanel('settings')}
           className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition-all cursor-pointer font-bold uppercase tracking-wider text-[9px]
-            ${openWindows['settings'] 
-              ? 'bg-gray-900 border-gray-900 text-white' 
+            ${activePanel === 'settings'
+              ? 'bg-gray-900 border-gray-900 text-white'
               : 'bg-white border-gray-200 hover:bg-gray-100 text-gray-700'}`}
         >
           <Settings className="w-3 h-3" />
