@@ -36,7 +36,7 @@ export default function SettingsWindow({
   };
 
   return (
-    <div className="flex flex-col h-full gap-3 text-[#1A1A1B] font-sans">
+    <div className="flex flex-col gap-3 text-[#1A1A1B] font-sans">
       <div className="space-y-4">
         {/* User profile identifier block */}
         <div className="space-y-1.5 p-2.5 rounded-xl border border-gray-200 bg-gray-50">

@@ -4,12 +4,13 @@
  */
 
 import DesktopWorkspace from './components/DesktopWorkspace';
+import WindowFrame from './components/WindowFrame';
 
 export default function App() {
   return (
-    <div className="w-full h-screen overflow-hidden">
+    <WindowFrame title="TRUNG TÂM ĐIỀU KHIỂN" onClose={() => window.electronAPI.closeWindow()}>
       <DesktopWorkspace />
-    </div>
+    </WindowFrame>
   );
 }
 

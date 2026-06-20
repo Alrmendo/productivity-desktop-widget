@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Clock,
   CheckSquare,
@@ -10,11 +10,10 @@ import {
   Calendar,
   Settings,
   BarChart2,
+  Link,
   Minimize2
 } from 'lucide-react';
 import { WidgetSettings } from '../types';
-
-type FeaturePanelId = 'pomodoro' | 'quicknote' | 'todomini' | 'dailytracker' | 'quickstats' | 'settings';
 
 interface MainCardProps {
   completedTasks: number;
@@ -26,10 +25,10 @@ interface MainCardProps {
     mode: 'work' | 'break';
   };
   streak: number;
-  onOpenPanel: (panel: FeaturePanelId) => void;
-  activePanel: string | null;
   settings: WidgetSettings;
   onTogglePomodoro: () => void;
+  onToggleWindow: (windowId: string) => void;
+  openWindows: { [key: string]: boolean };
 }
 
 export default function MainCard({
@@ -37,10 +36,10 @@ export default function MainCard({
   totalTasks,
   pomodoroState,
   streak,
-  onOpenPanel,
-  activePanel,
   settings,
   onTogglePomodoro,
+  onToggleWindow,
+  openWindows,
 }: MainCardProps) {
   const [time, setTime] = useState(new Date());
 
@@ -77,10 +76,10 @@ export default function MainCard({
     return `${label} ${minStr}:${secStr}`;
   };
 
-  const activeFeaturesCount = activePanel ? 1 : 0;
+  const activeFeaturesCount = Object.values(openWindows).filter(Boolean).length;
 
   return (
-    <div className="flex flex-col gap-4 select-none h-full text-[#1A1A1B] font-sans pb-1">
+    <div className="flex flex-col gap-4 select-none text-[#1A1A1B] font-sans pb-1">
       {/* Clock and Calendar Sector */}
       <div className="text-center py-3 bg-gray-50 rounded-xl border border-gray-200">
         <div className="font-sans text-3xl font-extrabold tracking-tight text-gray-950 tabular-nums">
@@ -94,7 +93,7 @@ export default function MainCard({
       {/* Core Widget Fast Status Badges */}
       <div className="grid grid-cols-2 gap-2">
         <div
-          onClick={() => onOpenPanel('todomini')}
+          onClick={() => onToggleWindow('todomini')}
           className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <div className="p-1.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-800">
@@ -107,7 +106,7 @@ export default function MainCard({
         </div>
 
         <div
-          onClick={() => onOpenPanel('quickstats')}
+          onClick={() => onToggleWindow('quickstats')}
           className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <div className="p-1.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-800">
@@ -126,7 +125,7 @@ export default function MainCard({
           <div className={`p-1.5 rounded-lg border ${pomodoroState.isActive ? 'bg-orange-50 border-orange-200 text-orange-600' : 'bg-gray-100 border-gray-200 text-gray-500'}`}>
             <Timer className="w-3.5 h-3.5" />
           </div>
-          <div className="cursor-pointer" onClick={() => onOpenPanel('pomodoro')}>
+          <div className="cursor-pointer" onClick={() => onToggleWindow('pomodoro')}>
             <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Pomodoro</div>
             <div className="text-xs font-bold text-gray-800 tracking-tight">{getPomodoroText()}</div>
           </div>
@@ -146,18 +145,19 @@ export default function MainCard({
         </div>
         <div className="grid grid-cols-3 gap-1.5">
           {[
-            { id: 'pomodoro' as const, name: 'Timer', icon: Timer, color: 'hover:bg-gray-50' },
-            { id: 'quicknote' as const, name: 'Notes', icon: FileText, color: 'hover:bg-gray-50' },
-            { id: 'dailytracker' as const, name: 'Log', icon: Calendar, color: 'hover:bg-gray-50' },
-            { id: 'todomini' as const, name: 'To-do', icon: CheckSquare, color: 'hover:bg-gray-50' },
-            { id: 'quickstats' as const, name: 'Thống kê', icon: BarChart2, color: 'hover:bg-gray-50' },
+            { id: 'pomodoro', name: 'Timer', icon: Timer, color: 'hover:bg-gray-50' },
+            { id: 'quicknote', name: 'Notes', icon: FileText, color: 'hover:bg-gray-50' },
+            { id: 'dailytracker', name: 'Log', icon: Calendar, color: 'hover:bg-gray-50' },
+            { id: 'todomini', name: 'To-do', icon: CheckSquare, color: 'hover:bg-gray-50' },
+            { id: 'quickstats', name: 'Thống kê', icon: BarChart2, color: 'hover:bg-gray-50' },
+            { id: 'links', name: 'Links', icon: Link, color: 'hover:bg-gray-50' },
           ].map((item) => {
-            const isOpen = activePanel === item.id;
+            const isOpen = openWindows[item.id];
             const IconComponent = item.icon;
             return (
               <button
                 key={item.id}
-                onClick={() => onOpenPanel(item.id)}
+                onClick={() => onToggleWindow(item.id)}
                 className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg border text-center transition-all cursor-pointer
                   ${isOpen
                     ? 'bg-gray-900 border-gray-900 text-white shadow-xs font-bold'
@@ -179,9 +179,9 @@ export default function MainCard({
           ACTIVE READY
         </span>
         <button
-          onClick={() => onOpenPanel('settings')}
+          onClick={() => onToggleWindow('settings')}
           className={`p-1.5 rounded-lg border text-xs flex items-center gap-1 transition-all cursor-pointer font-bold uppercase tracking-wider text-[9px]
-            ${activePanel === 'settings'
+            ${openWindows['settings']
               ? 'bg-gray-900 border-gray-900 text-white'
               : 'bg-white border-gray-200 hover:bg-gray-100 text-gray-700'}`}
         >
