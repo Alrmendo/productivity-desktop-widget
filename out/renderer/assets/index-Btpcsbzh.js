@@ -184,6 +184,7 @@ function MainCard({
         "button",
         {
           onClick: onTogglePomodoro,
+          "aria-label": "toggle-pomodoro",
           className: "p-1.5 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-700 transition-all cursor-pointer",
           children: pomodoroState.isActive ? /* @__PURE__ */ jsxRuntimeExports.jsx(Pause, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Play, { className: "w-3.5 h-3.5" })
         }

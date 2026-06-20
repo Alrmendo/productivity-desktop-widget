@@ -132,6 +132,7 @@ export default function MainCard({
         </div>
         <button
           onClick={onTogglePomodoro}
+          aria-label="toggle-pomodoro"
           className="p-1.5 rounded-lg bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-700 transition-all cursor-pointer"
         >
           {pomodoroState.isActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}

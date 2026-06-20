@@ -8,6 +8,7 @@
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "build:win": "electron-vite build && electron-builder --win portable",
+    "capture": "tsx scripts/capture-screenshots.ts",
     "preview": "electron-vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
@@ -33,6 +34,7 @@
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
     "esbuild": "^0.25.0",
+    "playwright": "^1.61.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
